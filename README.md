@@ -1,2 +1,180 @@
-# acawnima
-keseharian ajaa
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>𝚊𝚌𝚊𝚊𝚊𝚠𝚠𝚠</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-image: url('https://jetex.id/blog/wp-content/uploads/2025/05/1-5.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        padding: 20px;
+    }
+    .container {
+        max-width: 600px;
+        margin: auto;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 20px;
+        border-radius: 10px;
+    }
+    .input-row {
+        display: flex;
+        gap: 10px; /* jarak antar kolom */
+        margin-top: 10px;
+    }
+    .input-row input[type="text"],
+    .input-row input[type="date"] {
+        flex: 1; /* supaya sama lebar */
+    }
+    input, textarea, button {
+        width: 100%;
+        margin-top: 10px;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+    textarea {
+        resize: vertical;
+    }
+    button {
+        background: #FFC0CB;
+        color: black;
+        border: none;
+        cursor: pointer;
+    }
+    .memory {
+        background: #e9e9e9;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 5px;
+    }
+    .memory img {
+        max-width: 100%;
+        margin-top: 10px;
+        border-radius: 5px;
+    }
+    .memory button {
+        width: auto;
+        margin-right: 5px;
+        margin-top: 5px;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .edit-btn {
+        background: #87CEFA;
+    }
+    .delete-btn {
+        background: #FF6B6B;
+        color: white;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>𝚊𝚌𝚊𝚠𝚗𝚒𝚖𝚊</h2>
+
+    <div class="input-row">
+        <input type="text" id="title" placeholder="hari apaaww">
+        <input type="date" id="date">
+    </div>
+    <textarea id="story" placeholder="kerjaan nyaw nagapin?..."></textarea>
+    <input type="file" id="photo" accept="image/*">
+    <button id="saveBtn" onclick="saveMemory()">𝚖𝚊𝚜𝚘𝚔</button>
+
+    <h3>liatt laah gemoyy</h3>
+    <div id="memoryList"></div>
+</div>
+
+<script>
+let editIndex = null;
+
+function saveMemory() {
+    let title = document.getElementById("title").value;
+    let date = document.getElementById("date").value;
+    let story = document.getElementById("story").value;
+    let photoInput = document.getElementById("photo");
+
+    if (title === "" || story === "") {
+        alert("Judul dan cerita tidak boleh kosong!");
+        return;
+    }
+
+    let memories = JSON.parse(localStorage.getItem("memories")) || [];
+
+    function saveToLocalStorage(photoData) {
+        if (editIndex === null) {
+            memories.push({ title, date, story, photo: photoData });
+        } else {
+            memories[editIndex] = { title, date, story, photo: photoData };
+            editIndex = null;
+            document.getElementById("saveBtn").innerText = "𝚖𝚊𝚜𝚘𝚔";
+        }
+
+        localStorage.setItem("memories", JSON.stringify(memories));
+        document.getElementById("title").value = "";
+        document.getElementById("date").value = "";
+        document.getElementById("story").value = "";
+        photoInput.value = "";
+        displayMemories();
+    }
+
+    if (photoInput.files && photoInput.files[0]) {
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            saveToLocalStorage(e.target.result);
+        }
+        reader.readAsDataURL(photoInput.files[0]);
+    } else {
+        saveToLocalStorage(null);
+    }
+}
+
+function displayMemories() {
+    let memoryList = document.getElementById("memoryList");
+    memoryList.innerHTML = "";
+    let memories = JSON.parse(localStorage.getItem("memories")) || [];
+
+    memories.forEach((memory, index) => {
+        let div = document.createElement("div");
+        div.className = "memory";
+        div.innerHTML = `
+            <strong>${memory.title}</strong><br>
+            <small>${memory.date}</small><br>
+            <p>${memory.story}</p>
+            ${memory.photo ? `<img src="${memory.photo}" alt="Foto Kenangan">` : ''}
+            <button class="edit-btn" onclick="editMemory(${index})">ubahh</button>
+            <button class="delete-btn" onclick="deleteMemory(${index})">apuss</button>
+        `;
+        memoryList.appendChild(div);
+    });
+}
+
+function editMemory(index) {
+    let memories = JSON.parse(localStorage.getItem("memories")) || [];
+    let memory = memories[index];
+    document.getElementById("title").value = memory.title;
+    document.getElementById("date").value = memory.date;
+    document.getElementById("story").value = memory.story;
+    document.getElementById("photo").value = "";
+    editIndex = index;
+    document.getElementById("saveBtn").innerText = "💾 Simpan Edit";
+}
+
+function deleteMemory(index) {
+    let memories = JSON.parse(localStorage.getItem("memories")) || [];
+    if (confirm("Yakin ingin menghapus kenangan ini?")) {
+        memories.splice(index, 1);
+        localStorage.setItem("memories", JSON.stringify(memories));
+        displayMemories();
+    }
+}
+
+displayMemories();
+</script>
+
+</body>
+</html>
